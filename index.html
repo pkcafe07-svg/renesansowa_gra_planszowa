@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Ścieżka Odrodzenia: Renesans i Kultura Renesansu</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Humanistyczne i eleganckie kroje pisma -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            serif: ['Cinzel', 'serif'],
+            sans: ['Plus Jakarta Sans', 'sans-serif'],
+          },
+          colors: {
+            renaissance: {
+              gold: '#C89D42',
+              goldLight: '#E8CA7C',
+              terracotta: '#A84328',
+              umber: '#3E2723',
+              parchment: '#FBF7EE',
+              ink: '#231D19',
+              blue: '#1A365D',
+              green: '#22543D',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Tło z arcydziełem Michała Anioła o przezroczystości 70% nad podkładem pergaminu */
+    body {
+      background-color: #271A12;
+      background-image: 
+        linear-gradient(rgba(253, 248, 237, 0.74), rgba(246, 238, 222, 0.78)),
+        url('https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Michelangelo_-_Creation_of_Adam_%28cropped%29.jpg/1280px-Michelangelo_-_Creation_of_Adam_%28cropped%29.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Pergaminowa tekstura kafelków */
+    .parchment-card {
+      background: rgba(255, 252, 245, 0.93);
+      backdrop-filter: blur(8px);
+      border: 2px solid #C89D42;
+      box-shadow: 0 10px 25px -5px rgba(62, 39, 35, 0.15), 0 8px 10px -6px rgba(62, 39, 35, 0.1);
+    }
+
+    /* Efekt 3D kostki do gry */
+    .dice-cube {
+      transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .rolling {
+      animation: diceRollAnim 0.65s ease-out;
+    }
+    @keyframes diceRollAnim {
+      0% { transform: rotate(0deg) scale(0.9); }
+      30% { transform: rotate(180deg) scale(1.15); }
+      70% { transform: rotate(320deg) scale(1.05); }
+      100% { transform: rotate(360deg) scale(1); }
+    }
+
+    /* Animacja pionka przy wejściu */
+    .pawn-pulse {
+      animation: pawnPulseAnim 1.8s infinite alternate ease-in-out;
+    }
+    @keyframes pawnPulseAnim {
+      0% { transform: scale(1); filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
+      100% { transform: scale(1.12); filter: drop-shadow(0 4px 10px rgba(200, 157, 66, 0.8)); }
+    }
+
+    /* Ścieżka planszy - linia łącząca kafelki */
+    .board-path-connector {
+      position: absolute;
+      width: 6px;
+      background: repeating-linear-gradient(to bottom, #C89D42 0, #C89D42 8px, transparent 8px, transparent 16px);
+      z-index: 1;
+    }
+
+    /* Płynne przewijanie do pionka */
+    html {
+      scroll-behavior: smooth;
+    }
+  </style>
+</head>
+<body class="min-h-screen text-renaissance-ink flex flex-col justify-between items-center pb-16 sm:pb-20">
+
+  <!-- Górny pasek nagłówka z informacją o turze i dźwięku -->
+  <header class="w-full max-w-md sticky top-0 z-30 px-3 py-2.5 bg-renaissance-umber/95 text-amber-50 backdrop-blur-md shadow-md border-b-2 border-renaissance-gold flex items-center justify-between">
+    <div class="flex items-center space-x-2">
+      <div class="w-8 h-8 rounded-full bg-renaissance-gold flex items-center justify-center text-renaissance-umber font-serif font-black text-sm shadow">
+        🏛️
+      </div>
+      <div>
+        <h1 class="font-serif font-bold text-xs uppercase tracking-wider text-amber-200">Ścieżka Odrodzenia</h1>
+        <p class="text-[10px] text-amber-100/80">Renesans i Kultura Renesansu (Kl. 6)</p>
+      </div>
+    </div>
+    
+    <div class="flex items-center space-x-2">
+      <button id="btnSoundToggle" class="p-1.5 rounded-lg bg-amber-900/60 border border-amber-500/40 text-xs hover:bg-amber-800 transition" title="Włącz / Wyłącz dźwięk">
+        🔊
+      </button>
+      <button id="btnEditPlayers" class="p-1.5 px-2.5 rounded-lg bg-amber-900/70 border border-amber-500/50 text-amber-200 font-bold text-xs hover:bg-amber-800 transition flex items-center space-x-1" title="Zmień imiona i postacie graczy">
+        <span>👥</span> <span>Gracze</span>
+      </button>
+      <button id="btnHelp" class="p-1.5 px-2.5 rounded-lg bg-renaissance-gold text-renaissance-umber font-bold text-xs hover:bg-amber-400 transition" title="Zasady gry">
+        Instrukcja
+      </button>
+    </div>
+  </header>
+
+  <!-- Pasek informacyjny: Kto ma telefon? -->
+  <section class="w-full max-w-md px-3 pt-2">
+    <div id="turnBanner" class="w-full py-2 px-3 rounded-xl border-2 transition-all duration-300 shadow-sm flex items-center justify-between bg-amber-50/90 border-renaissance-gold">
+      <div class="flex items-center space-x-2.5">
+        <div id="currentPawnThumb" class="w-9 h-9 rounded-full border-2 border-renaissance-gold overflow-hidden shadow">
+          <!-- Zdjęcie aktywnego gracza -->
+        </div>
+        <div>
+          <span class="text-[10px] uppercase font-bold tracking-wider text-renaissance-terracotta">Ruch w toku (Pass & Play):</span>
+          <h2 id="currentTurnName" class="font-serif font-bold text-sm text-renaissance-umber leading-tight">Gracz 1: Leonardo da Vinci</h2>
+        </div>
+      </div>
+      <span id="turnActionBadge" class="text-xs font-semibold px-2 py-1 rounded bg-amber-100 text-amber-900 border border-amber-300">
+        Rzuć kością 🎲
+      </span>
+    </div>
+  </section>
+
+  <!-- Główna plansza: Ścieżka kafelkowa w układzie pionowym zoptymalizowana pod telefon -->
+  <main class="w-full max-w-md px-4 py-4 relative flex-1">
+    <div class="relative flex flex-col items-center space-y-3.5 my-2" id="boardTrack">
+      <!-- Kafelki planszy generowane dynamicznie w skrypcie JS -->
+    </div>
+  </main>
+
+  <!-- Dolny dok: Kość, statystyki i przycisk rzutu (Kompaktowy dla pionowego ekranu smartfona) -->
+  <footer class="fixed bottom-0 left-0 right-0 z-20 flex justify-center px-2 py-1.5 bg-renaissance-umber/95 backdrop-blur-md border-t border-renaissance-gold shadow-lg">
+    <div class="w-full max-w-md flex items-center justify-between gap-1.5">
+      
+      <!-- Mini panel Gracza 1 -->
+      <div id="player1Status" class="flex-1 min-w-0 flex items-center space-x-1.5 p-1 rounded-lg bg-amber-900/60 border border-transparent transition cursor-pointer hover:bg-amber-800/80 active:scale-95" title="Kliknij, aby zmienić imię lub postać">
+        <div id="p1AvatarMini" class="w-6 h-6 sm:w-7 sm:h-7 rounded-full border border-amber-300 overflow-hidden flex-shrink-0 flex items-center justify-center shadow"></div>
+        <div class="truncate">
+          <p id="p1MiniName" class="text-[9px] sm:text-[10px] text-amber-300 font-bold truncate leading-tight">G1: Leonardo</p>
+          <p class="text-[10px] text-white font-serif leading-tight"><span id="p1Points">0</span> pkt <span class="text-amber-400/80 text-[9px]">• p.<span id="p1TileNum">0</span></span></p>
+        </div>
+      </div>
+
+      <!-- Centralna Kość i przycisk rzutu -->
+      <div class="flex items-center space-x-1 sm:space-x-1.5 flex-shrink-0">
+        <div id="diceVisual" class="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-50 to-amber-200 border border-renaissance-gold shadow flex items-center justify-center font-serif text-lg font-black text-renaissance-umber dice-cube">
+          1
+        </div>
+        <button id="btnRollDice" class="px-2.5 py-1.5 bg-gradient-to-r from-renaissance-gold to-amber-500 hover:from-amber-400 hover:to-renaissance-gold text-renaissance-umber font-serif font-black text-[11px] sm:text-xs rounded-lg shadow active:scale-95 transition border border-amber-200 whitespace-nowrap">
+          RZUĆ (1-4)
+        </button>
+      </div>
+
+      <!-- Mini panel Gracza 2 -->
+      <div id="player2Status" class="flex-1 min-w-0 flex items-center space-x-1.5 p-1 rounded-lg bg-amber-900/60 border border-transparent transition cursor-pointer hover:bg-amber-800/80 active:scale-95" title="Kliknij, aby zmienić imię lub postać">
+        <div id="p2AvatarMini" class="w-6 h-6 sm:w-7 sm:h-7 rounded-full border border-amber-300 overflow-hidden flex-shrink-0 flex items-center justify-center shadow"></div>
+        <div class="truncate">
+          <p id="p2MiniName" class="text-[9px] sm:text-[10px] text-amber-300 font-bold truncate leading-tight">G2: Michał Anioł</p>
+          <p class="text-[10px] text-white font-serif leading-tight"><span id="p2Points">0</span> pkt <span class="text-amber-400/80 text-[9px]">• p.<span id="p2TileNum">0</span></span></p>
+        </div>
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- MODAL 1: Karta Pytania / Zadania z bazy PDF -->
+  <div id="questionModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="w-full max-w-sm parchment-card rounded-2xl p-4 sm:p-5 shadow-2xl relative border-4 border-renaissance-gold animate-in fade-in zoom-in duration-200 max-h-[90vh] overflow-y-auto">
+      
+      <!-- Nagłówek karty -->
+      <div class="flex items-center justify-between pb-2 mb-3 border-b border-renaissance-gold/50">
+        <div class="flex items-center space-x-2">
+          <span id="modalCategoryBadge" class="px-2 py-0.5 text-[11px] font-bold uppercase rounded bg-renaissance-umber text-amber-100">
+            Wiedza Renesansu
+          </span>
+          <span id="modalTileIndicator" class="text-xs text-amber-900 font-bold">Pole #4</span>
+        </div>
+        <span class="text-xs font-serif font-bold text-renaissance-terracotta">20 pkt</span>
+      </div>
+
+      <!-- Treść pytania -->
+      <h3 id="modalQuestionText" class="font-serif font-bold text-base text-renaissance-umber leading-snug mb-4">
+        Treść pytania wyciągnięta z podręcznika...
+      </h3>
+
+      <!-- Opcje odpowiedzi (Wielokrotny wybór lub Prawda/Fałsz) -->
+      <div id="modalOptionsContainer" class="space-y-2 mb-4">
+        <!-- Generowane z JS -->
+      </div>
+
+      <!-- Sekcja wyjaśnienia dydaktycznego (po kliknięciu) -->
+      <div id="modalExplanationBox" class="hidden mt-3 p-3 rounded-xl bg-amber-100/90 border border-amber-300 text-xs text-renaissance-umber">
+        <p id="modalResultTitle" class="font-bold text-sm mb-1"></p>
+        <p id="modalExplanationText" class="leading-relaxed"></p>
+        <button id="btnContinueAfterAnswer" class="mt-3 w-full py-2 bg-renaissance-gold text-renaissance-umber font-serif font-bold text-xs uppercase rounded-lg shadow hover:bg-amber-400 transition">
+          Przejdź dalej
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL 2: Ekran zmiany gracza "Pass & Play" (Przekaż telefon koledze) -->
+  <div id="handoverModal" class="fixed inset-0 z-50 bg-renaissance-umber/90 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="w-full max-w-sm parchment-card rounded-2xl p-6 text-center border-4 border-renaissance-gold shadow-2xl">
+      <div id="handoverAvatar" class="w-20 h-20 mx-auto rounded-full border-4 border-renaissance-gold overflow-hidden mb-3 shadow-lg flex items-center justify-center">
+        <!-- Renderowane jako SVG z JS -->
+      </div>
+      <span class="inline-block px-3 py-1 bg-renaissance-terracotta text-white text-[11px] font-bold rounded-full uppercase tracking-wider mb-2">
+        Zmiana gracza w ławce!
+      </span>
+      <h3 class="font-serif font-bold text-xl text-renaissance-umber mb-1">
+        Podaj telefon!
+      </h3>
+      <p class="text-sm text-stone-700 mb-4">
+        Teraz kolej na: <strong id="handoverPlayerName" class="text-renaissance-umber text-base font-serif block mt-1">Gracz 2</strong>
+      </p>
+      <p class="text-xs text-stone-500 italic mb-5">
+        Weź telefon do ręki i przygotuj się na rzut renesansową kością!
+      </p>
+      <button id="btnHandoverReady" class="w-full py-3 bg-gradient-to-r from-renaissance-gold to-amber-500 text-renaissance-umber font-serif font-black text-sm uppercase rounded-xl shadow-lg active:scale-95 transition">
+        Jestem gotowy / Gotowa! 🎲
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL 3: Zwycięstwo / Koniec Gry -->
+  <div id="victoryModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="w-full max-w-sm parchment-card rounded-2xl p-6 text-center border-4 border-renaissance-gold shadow-2xl">
+      <div class="text-4xl mb-2">👑 🏛️ 🎨</div>
+      <h2 class="font-serif font-black text-2xl text-renaissance-terracotta mb-1">
+        MISTRZ RENESANSU!
+      </h2>
+      <p class="text-xs uppercase font-bold text-stone-600 mb-4">Dotarto do celu: Watykan i Florencja!</p>
+      
+      <div class="p-4 rounded-xl bg-amber-100/70 border border-renaissance-gold mb-4 text-left">
+        <p class="text-xs font-bold text-renaissance-umber mb-1">Zwycięzca:</p>
+        <p id="victoryWinnerName" class="font-serif font-bold text-lg text-renaissance-terracotta"></p>
+        <div class="mt-2 pt-2 border-t border-amber-300 text-xs text-stone-700 space-y-1">
+          <p id="victoryP1Score"></p>
+          <p id="victoryP2Score"></p>
+        </div>
+      </div>
+
+      <p class="text-xs text-stone-600 mb-4 italic">
+        „Człowiekiem jestem i nic, co ludzkie, nie jest mi obce.” – Gratulacje dla obojga humanistów!
+      </p>
+
+      <button id="btnPlayAgain" class="w-full py-3 bg-renaissance-gold text-renaissance-umber font-serif font-bold text-sm rounded-xl shadow-lg hover:bg-amber-400 transition">
+        Zagraj ponownie w parze
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL 4: Instrukcja i zasady -->
+  <div id="helpModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="w-full max-w-sm parchment-card rounded-2xl p-5 border-4 border-renaissance-gold shadow-2xl max-h-[85vh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-2 border-b border-renaissance-gold mb-3">
+        <h3 class="font-serif font-bold text-base text-renaissance-umber">Zasady: Pass & Play w ławce</h3>
+        <button id="btnCloseHelp" class="text-stone-500 font-bold hover:text-stone-800 text-lg px-2">✕</button>
+      </div>
+      <div class="text-xs text-stone-700 space-y-2.5 leading-relaxed">
+        <p><strong>1. Cel gry:</strong> Przemierz 20 pól od Florencji do Watykanu, zdobywając wiedzę o renesansie i kulturze odrodzenia (tematy 3 i 4 z podręcznika klasy 6).</p>
+        <p><strong>2. Rzut kością:</strong> Gracze rzucają na zmianę kością w zakresie <strong>1–4</strong> (krótszy zasięg zapewnia dynamiczną lekcję).</p>
+        <p><strong>3. Typy pól:</strong></p>
+        <ul class="list-disc pl-4 space-y-1">
+          <li><span class="font-bold text-amber-800">Pole Wiedzy (A/B/C/D):</span> Pytania z podręcznika (humanizm, druk, wielcy mistrzowie).</li>
+          <li><span class="font-bold text-indigo-800">Prawda / Fałsz:</span> Szybka weryfikacja faktów historycznych.</li>
+          <li><span class="font-bold text-emerald-800">Mecenat i Szansa:</span> Ruch do przodu o 1-2 pola.</li>
+          <li><span class="font-bold text-rose-800">Przeszkoda:</span> Cofnięcie się na ścieżce lub utrata tury.</li>
+        </ul>
+        <p><strong>4. Model Pass & Play:</strong> Po wykonaniu rzutu i odpowiedzi na pytanie aplikacja prosi o przekazanie telefonu drugiemu graczowi.</p>
+      </div>
+      <button id="btnCloseHelpBottom" class="mt-4 w-full py-2 bg-renaissance-gold text-renaissance-umber font-serif font-bold text-xs uppercase rounded-lg">
+        Wracamy do gry!
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL 5: Zmiana imion i postaci graczy -->
+  <div id="playersModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="w-full max-w-sm parchment-card rounded-2xl p-5 border-4 border-renaissance-gold shadow-2xl animate-in fade-in zoom-in duration-150">
+      <div class="flex items-center justify-between pb-2 mb-3 border-b border-renaissance-gold">
+        <h3 class="font-serif font-bold text-base text-renaissance-umber flex items-center space-x-2">
+          <span>👥</span> <span>Uczestnicy w ławce</span>
+        </h3>
+        <button id="btnClosePlayers" class="text-stone-500 font-bold hover:text-stone-800 text-lg px-2">✕</button>
+      </div>
+
+      <p class="text-xs text-stone-600 mb-3">Wpiszcie swoje imiona i wybierzcie ulubionego mistrza renesansu:</p>
+
+      <!-- Sekcja Gracza 1 -->
+      <div class="mb-3.5 p-3 rounded-xl bg-amber-100/70 border border-amber-300">
+        <div class="flex items-center justify-between mb-2">
+          <label for="inputP1Name" class="text-xs font-bold text-renaissance-umber flex items-center space-x-1.5">
+            <span class="w-5 h-5 rounded-full bg-amber-700 text-white text-[10px] flex items-center justify-center">1</span>
+            <span>Gracz 1 (Imię):</span>
+          </label>
+          <div id="previewP1Avatar" class="w-7 h-7 rounded-full border-2 border-renaissance-gold overflow-hidden"></div>
+        </div>
+        <input type="text" id="inputP1Name" maxlength="18" class="w-full px-3 py-1.5 text-xs rounded-lg border border-amber-400 bg-white font-semibold text-renaissance-umber focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="Wpisz imię gracza 1">
+        
+        <div class="mt-2">
+          <span class="text-[10px] uppercase font-bold text-stone-600 tracking-wider block mb-1">Wybór postaci:</span>
+          <div id="p1AvatarPickers" class="grid grid-cols-4 gap-1.5">
+            <!-- Dynamiczne przyciski postaci -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Sekcja Gracza 2 -->
+      <div class="mb-4 p-3 rounded-xl bg-amber-100/70 border border-amber-300">
+        <div class="flex items-center justify-between mb-2">
+          <label for="inputP2Name" class="text-xs font-bold text-renaissance-umber flex items-center space-x-1.5">
+            <span class="w-5 h-5 rounded-full bg-blue-900 text-white text-[10px] flex items-center justify-center">2</span>
+            <span>Gracz 2 (Imię):</span>
+          </label>
+          <div id="previewP2Avatar" class="w-7 h-7 rounded-full border-2 border-renaissance-gold overflow-hidden"></div>
+        </div>
+        <input type="text" id="inputP2Name" maxlength="18" class="w-full px-3 py-1.5 text-xs rounded-lg border border-amber-400 bg-white font-semibold text-renaissance-umber focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Wpisz imię gracza 2">
+        
+        <div class="mt-2">
+          <span class="text-[10px] uppercase font-bold text-stone-600 tracking-wider block mb-1">Wybór postaci:</span>
+          <div id="p2AvatarPickers" class="grid grid-cols-4 gap-1.5">
+            <!-- Dynamiczne przyciski postaci -->
+          </div>
+        </div>
+      </div>
+
+      <button id="btnSavePlayers" class="w-full py-2.5 bg-gradient-to-r from-renaissance-gold to-amber-500 text-renaissance-umber font-serif font-black text-xs uppercase rounded-xl shadow-lg hover:bg-amber-400 active:scale-95 transition">
+        Zapisz i kontynuuj grę 🎲
+      </button>
+    </div>
+  </div>
+
+  <script>
+    /* ==========================================================================
+       WEKTOROWE AWATARY RENESANSOWE (SVG) - 100% niezawodne, bez błędów wczytywania
+       ========================================================================== */
+    const RENAISSANCE_AVATARS = {
+      leonardo: {
+        id: "leonardo",
+        name: "Leonardo da Vinci",
+        title: "Geniusz Renesansu",
+        themeColor: "#C89D42",
+        svg: `<svg viewBox="0 0 100 100" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="grad-leo" cx="50%" cy="45%" r="55%">
+              <stop offset="0%" stop-color="#E9C46A"/>
+              <stop offset="100%" stop-color="#8C531B"/>
+            </radialGradient>
+          </defs>
+          <circle cx="50" cy="50" r="48" fill="url(#grad-leo)" stroke="#C89D42" stroke-width="3"/>
+          <path d="M22 92 C22 75 32 68 50 68 C68 68 78 75 78 92 Z" fill="#3D2314"/>
+          <path d="M42 68 L50 78 L58 68 Z" fill="#F4E8C1"/>
+          <ellipse cx="50" cy="52" rx="18" ry="22" fill="#F3D2B8"/>
+          <path d="M35 52 C31 70 38 88 50 90 C62 88 69 70 65 52 C60 58 55 60 50 60 C45 60 40 58 35 52 Z" fill="#E2DDD5"/>
+          <path d="M39 56 Q50 62 61 56 Q50 65 39 56 Z" fill="#C5BFB5"/>
+          <path d="M38 43 Q43 39 47 43" stroke="#4A3525" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+          <path d="M53 43 Q57 39 62 43" stroke="#4A3525" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+          <circle cx="42" cy="46" r="2.2" fill="#3D2314"/>
+          <circle cx="58" cy="46" r="2.2" fill="#3D2314"/>
+          <circle cx="43" cy="45" r="0.7" fill="#FFFFFF"/>
+          <circle cx="59" cy="45" r="0.7" fill="#FFFFFF"/>
+          <path d="M50 45 L48 53 L52 53" stroke="#C49A78" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          <path d="M32 40 C28 50 30 62 35 68 C34 58 35 48 37 42 Z" fill="#E2DDD5"/>
+          <path d="M68 40 C72 50 70 62 65 68 C66 58 65 48 63 42 Z" fill="#E2DDD5"/>
+          <ellipse cx="50" cy="33" rx="26" ry="11" fill="#2E1610"/>
+          <path d="M26 33 C26 21 74 21 74 33 Z" fill="#3E1E17"/>
+          <circle cx="50" cy="22" r="3" fill="#C89D42"/>
+          <circle cx="80" cy="80" r="13" fill="#C89D42" stroke="#2E1610" stroke-width="1.5"/>
+          <text x="80" y="85" font-size="12" text-anchor="middle" font-weight="bold" fill="#3E2723">📐</text>
+        </svg>`
+      },
+      michelangelo: {
+        id: "michelangelo",
+        name: "Michał Anioł",
+        title: "Mistrz Rzeźby i Fresku",
+        themeColor: "#1A365D",
+        svg: `<svg viewBox="0 0 100 100" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="grad-michel" cx="50%" cy="45%" r="55%">
+              <stop offset="0%" stop-color="#4A6FA5"/>
+              <stop offset="100%" stop-color="#102542"/>
+            </radialGradient>
+          </defs>
+          <circle cx="50" cy="50" r="48" fill="url(#grad-michel)" stroke="#C89D42" stroke-width="3"/>
+          <path d="M22 92 C22 74 33 66 50 66 C67 66 78 74 78 92 Z" fill="#243348"/>
+          <path d="M43 66 L50 76 L57 66 Z" fill="#F0E5D8"/>
+          <ellipse cx="50" cy="50" rx="18" ry="21" fill="#F0CEB4"/>
+          <path d="M37 54 C36 66 42 76 50 77 C58 76 64 66 63 54 C59 58 55 60 50 60 C45 60 41 58 37 54 Z" fill="#473329"/>
+          <path d="M42 57 Q50 62 58 57 Q50 63 42 57 Z" fill="#33241C"/>
+          <ellipse cx="50" cy="66" rx="5" ry="3" fill="#33241C"/>
+          <path d="M37 41 Q43 38 47 41" stroke="#2B1D15" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+          <path d="M53 41 Q57 38 63 41" stroke="#2B1D15" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+          <circle cx="42" cy="45" r="2.2" fill="#261A13"/>
+          <circle cx="58" cy="45" r="2.2" fill="#261A13"/>
+          <circle cx="43" cy="44" r="0.7" fill="#FFFFFF"/>
+          <circle cx="59" cy="44" r="0.7" fill="#FFFFFF"/>
+          <path d="M50 42 L48 50 L53 52" stroke="#B88A68" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+          <path d="M30 42 C26 30 36 22 50 22 C64 22 74 30 70 42 C67 33 60 28 50 28 C40 28 33 33 30 42 Z" fill="#36251D"/>
+          <circle cx="34" cy="36" r="6" fill="#36251D"/>
+          <circle cx="66" cy="36" r="6" fill="#36251D"/>
+          <circle cx="50" cy="24" r="7" fill="#36251D"/>
+          <circle cx="80" cy="80" r="13" fill="#C89D42" stroke="#102542" stroke-width="1.5"/>
+          <text x="80" y="85" font-size="12" text-anchor="middle" font-weight="bold" fill="#3E2723">⚒️</text>
+        </svg>`
+      },
+      rafael: {
+        id: "rafael",
+        name: "Rafael Santi",
+        title: "Mistrz Harmonii",
+        themeColor: "#22543D",
+        svg: `<svg viewBox="0 0 100 100" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="grad-raf" cx="50%" cy="45%" r="55%">
+              <stop offset="0%" stop-color="#4E8761"/>
+              <stop offset="100%" stop-color="#143A24"/>
+            </radialGradient>
+          </defs>
+          <circle cx="50" cy="50" r="48" fill="url(#grad-raf)" stroke="#C89D42" stroke-width="3"/>
+          <path d="M22 92 C22 74 33 66 50 66 C67 66 78 74 78 92 Z" fill="#1C3022"/>
+          <path d="M44 66 L50 74 L56 66 Z" fill="#F0EADB"/>
+          <ellipse cx="50" cy="49" rx="17" ry="20" fill="#F7D8C0"/>
+          <path d="M32 38 C30 52 30 64 36 70 C34 58 35 46 36 40 Z" fill="#4A3022"/>
+          <path d="M68 38 C70 52 70 64 64 70 C66 58 65 46 64 40 Z" fill="#4A3022"/>
+          <ellipse cx="50" cy="33" rx="24" ry="10" fill="#202026"/>
+          <path d="M28 33 C28 20 72 20 72 33 Z" fill="#2C2C38"/>
+          <path d="M39 42 Q44 40 47 42" stroke="#3D2B1F" stroke-width="1.6" fill="none"/>
+          <path d="M53 42 Q56 40 61 42" stroke="#3D2B1F" stroke-width="1.6" fill="none"/>
+          <circle cx="43" cy="45" r="2.2" fill="#2E1C12"/>
+          <circle cx="57" cy="45" r="2.2" fill="#2E1C12"/>
+          <path d="M50 45 L49 52 L52 52" stroke="#C89E82" stroke-width="1.5" fill="none"/>
+          <path d="M45 58 Q50 62 55 58" stroke="#A84328" stroke-width="1.5" fill="none"/>
+          <circle cx="80" cy="80" r="13" fill="#C89D42" stroke="#143A24" stroke-width="1.5"/>
+          <text x="80" y="85" font-size="12" text-anchor="middle" font-weight="bold" fill="#3E2723">🎨</text>
+        </svg>`
+      },
+      gutenberg: {
+        id: "gutenberg",
+        name: "Jan Gutenberg",
+        title: "Mistrz Ruchomej Czcionki",
+        themeColor: "#822727",
+        svg: `<svg viewBox="0 0 100 100" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="grad-gut" cx="50%" cy="45%" r="55%">
+              <stop offset="0%" stop-color="#AF4D43"/>
+              <stop offset="100%" stop-color="#4F1612"/>
+            </radialGradient>
+          </defs>
+          <circle cx="50" cy="50" r="48" fill="url(#grad-gut)" stroke="#C89D42" stroke-width="3"/>
+          <path d="M22 92 C22 75 32 68 50 68 C68 68 78 75 78 92 Z" fill="#381D19"/>
+          <path d="M30 75 Q50 82 70 75 Q50 92 30 75 Z" fill="#6A5144"/>
+          <ellipse cx="50" cy="50" rx="17" ry="20" fill="#F0CFB6"/>
+          <path d="M36 50 C33 66 40 84 50 86 C60 84 67 66 64 50 C59 56 55 58 50 58 C45 58 41 56 36 50 Z" fill="#ECE7DE"/>
+          <path d="M40 55 Q50 60 60 55 Q50 62 40 55 Z" fill="#D3CCC2"/>
+          <path d="M38 42 Q43 40 46 42" stroke="#3D291F" stroke-width="1.8" fill="none"/>
+          <path d="M54 42 Q57 40 62 42" stroke="#3D291F" stroke-width="1.8" fill="none"/>
+          <circle cx="42" cy="45" r="2.2" fill="#2E1C12"/>
+          <circle cx="58" cy="45" r="2.2" fill="#2E1C12"/>
+          <path d="M50 44 L48 52 L52 52" stroke="#BF9074" stroke-width="1.5" fill="none"/>
+          <ellipse cx="50" cy="33" rx="25" ry="11" fill="#4E1810"/>
+          <ellipse cx="50" cy="35" rx="22" ry="6" fill="#7D5846"/>
+          <circle cx="80" cy="80" r="13" fill="#C89D42" stroke="#4E1810" stroke-width="1.5"/>
+          <text x="80" y="85" font-size="12" text-anchor="middle" font-weight="bold" fill="#3E2723">🔤</text>
+        </svg>`
+      }
+    };
+
+    function getAvatarSvg(avatarKey) {
+      return RENAISSANCE_AVATARS[avatarKey] ? RENAISSANCE_AVATARS[avatarKey].svg : RENAISSANCE_AVATARS.leonardo.svg;
+    }
+
+    /* Dźwięki syntetyczne Web Audio API - bez zewnętrznych plików audio */
+    class RenaissanceSoundManager {
+      constructor() {
+        this.ctx = null;
+        this.enabled = true;
+      }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) this.ctx = new AudioContext();
+        }
+      }
+      playTone(freq, type, duration, gainVal = 0.1) {
+        if (!this.enabled) return;
+        try {
+          this.init();
+          if (!this.ctx) return;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+          gain.gain.setValueAtTime(gainVal, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + duration);
+        } catch(e) { console.log('Audio muted or prevented'); }
+      }
+      playRoll() {
+        this.playTone(320, 'triangle', 0.08, 0.08);
+      }
+      playSuccess() {
+        setTimeout(() => this.playTone(523.25, 'sine', 0.15, 0.15), 0);
+        setTimeout(() => this.playTone(659.25, 'sine', 0.18, 0.15), 120);
+        setTimeout(() => this.playTone(783.99, 'sine', 0.35, 0.2), 240);
+      }
+      playWrong() {
+        setTimeout(() => this.playTone(280, 'sawtooth', 0.2, 0.1), 0);
+        setTimeout(() => this.playTone(210, 'sawtooth', 0.35, 0.12), 150);
+      }
+      playFanfare() {
+        [523.25, 659.25, 783.99, 1046.50].forEach((f, idx) => {
+          setTimeout(() => this.playTone(f, 'triangle', 0.3, 0.2), idx * 160);
+        });
+      }
+    }
+    const soundMgr = new RenaissanceSoundManager();
+
+    /* ==========================================================================
+       BAZA WIEDZY WYCIĄGNIĘTA Z PDF:
+       Źródło 3: Renesans – narodziny nowej epoki
+       Źródło 4: Kultura renesansu w Europie
+       ========================================================================== */
+    const QUESTIONS_DATABASE = [
+      {
+        id: 1,
+        typ: "wybor",
+        pytanie: "Co w języku francuskim oznacza słowo „renesans”?",
+        opcje: ["Oświecenie", "Odrodzenie", "Złoty wiek", "Odkrycie"],
+        poprawna: 1,
+        wyjasnienie: "Słowo renesans pochodzi z języka francuskiego i oznacza odrodzenie. Nazwa ta nawiązuje do ponownego zainteresowania i wzorowania się na kulturze starożytnych Greków i Rzymian."
+      },
+      {
+        id: 2,
+        typ: "wybor",
+        pytanie: "Jakie hasło starożytne stało się głównym mottem humanistów epoki odrodzenia?",
+        opcje: [
+          "Módl się i pracuj (Ora et labora)",
+          "Człowiekiem jestem i nic, co ludzkie, nie jest mi obce",
+          "Myślę, więc jestem",
+          "Kości zostały rzucone"
+        ],
+        poprawna: 1,
+        wyjasnienie: "Humanizm stawiał człowieka w centrum uwagi. Słynne motto oznaczało, że humaniści akceptowali człowieka z wszystkimi jego zaletami oraz wadami."
+      },
+      {
+        id: 3,
+        typ: "wybor",
+        pytanie: "Czym w epoce renesansu był „mecenat”?",
+        opcje: [
+          "Stylem budowania wysokich wież ratuszowych",
+          "Wsparciem finansowym artystów przez bogatych miłośników sztuki",
+          "Podatkiem od wydrukowanych ksiąg",
+          "Pracą zecera w drukarni"
+        ],
+        poprawna: 1,
+        wyjasnienie: "Mecenat polegał na otaczaniu opieką finansową malarzy, rzeźbiarzy i architektów przez papieży, królów, książąt (np. Medyceuszy) oraz bogatych mieszczan."
+      },
+      {
+        id: 4,
+        typ: "wybor",
+        pytanie: "Kto około 1445 roku w Moguncji wynalazł metodę druku za pomocą ruchomych czcionek?",
+        opcje: ["Jan Gutenberg", "Leonardo da Vinci", "Erazm z Rotterdamu", "Mikołaj Kopernik"],
+        poprawna: 0,
+        wyjasnienie: "Jan Gutenberg opracował ruchomą czcionkę oraz prasę drukarską, co drastycznie obniżyło ceny ksiąg i umożliwiło błyskawiczne rozpowszechnianie idei renesansu."
+      },
+      {
+        id: 5,
+        typ: "prawda_falsz",
+        pytanie: "Zecer w renesansowej drukarni nakładał farbę i odbijał strony przy użyciu prasy.",
+        poprawna: false,
+        wyjasnienie: "Fałsz! Zecer odpowiadał za ręczne układanie pojedynczych czcionek w strony książki. Odbijaniem zajmował się drukarz, a zszywaniem introligator."
+      },
+      {
+        id: 6,
+        typ: "wybor",
+        pytanie: "Które włoskie miasto uważa się za kolebkę renesansu, gdzie rządzili Medyceusze?",
+        opcje: ["Mediolan", "Florencja", "Wenecja", "Neapol"],
+        poprawna: 1,
+        wyjasnienie: "Florencja w Toskanii była na przełomie XV i XVI wieku najbogatszym miastem włoskim i stolicą odrodzenia, w której tworzyli najwięksi geniusze."
+      },
+      {
+        id: 7,
+        typ: "wybor",
+        pytanie: "Jak nazywa się ozdobne przedłużenie ściany frontowej budynku na wysokości dachu, typowe dla renesansu?",
+        opcje: ["Arkada", "Kopuła", "Attyka", "Latarnia"],
+        poprawna: 2,
+        wyjasnienie: "Attyka to charakterystyczna ścianka wieńcząca dach renesansowego pałacu lub kamienicy, często bogato zdobiona rzeźbami i płaskorzeźbami."
+      },
+      {
+        id: 8,
+        typ: "prawda_falsz",
+        pytanie: "Arkada to element architektoniczny złożony z kolumn połączonych łukiem.",
+        poprawna: true,
+        wyjasnienie: "Prawda! Kolumny spięte łukiem tworzą arkady, a ciąg arkad okalających dziedziniec nazywamy krużgankami."
+      },
+      {
+        id: 9,
+        typ: "wybor",
+        pytanie: "Który fresk Leonarda da Vinci przedstawia apostołów z Jezusem w klasztorze w Mediolanie?",
+        opcje: ["Stworzenie Adama", "Ostatnia Wieczerza", "Madonna Sykstyńska", "Sąd Ostateczny"],
+        poprawna: 1,
+        wyjasnienie: "„Ostatnia Wieczerza” to słynne malowidło ścienne Leonarda. Dzięki zastosowaniu perspektywy malarz uzyskał wrażenie trójwymiarowej głębi."
+      },
+      {
+        id: 10,
+        typ: "wybor",
+        pytanie: "Jakie bezcenne dzieło Leonarda da Vinci znajduje się w polskich zbiorach w Muzeum Narodowym w Krakowie?",
+        opcje: ["Mona Lisa", "Dama z gronostajem (łasiczką)", "Pieta", "Pochwała głupoty"],
+        poprawna: 1,
+        wyjasnienie: "„Dama z gronostajem” (portret Cecylii Gallerani) to jedyny i najcenniejszy obraz Leonarda da Vinci znajdujący się na stałe w Polsce."
+      },
+      {
+        id: 11,
+        typ: "wybor",
+        pytanie: "Kto ozdobił freskami sklepienie Kaplicy Sykstyńskiej w Watykanie oraz wyrzeźbił marmurową Pietę?",
+        opcje: ["Rafael Santi", "Michał Anioł", "Jan Gutenberg", "Amerigo Vespucci"],
+        poprawna: 1,
+        wyjasnienie: "Michał Anioł (Michelangelo Buonarroti) był geniuszem rzeźby, malarstwa, architektury i poezji. Zaprojektował także potężną kopułę bazyliki św. Piotra."
+      },
+      {
+        id: 12,
+        typ: "prawda_falsz",
+        pytanie: "„Mona Lisa” Leonarda da Vinci to wielkoformatowy obraz ścienny o wysokości ponad 5 metrów.",
+        poprawna: false,
+        wyjasnienie: "Fałsz! Mona Lisa to niewielki portret sztalugowy kobiety o tajemniczym uśmiechu (żony kupca Giocondo), przechowywany w paryskim Luwrze."
+      },
+      {
+        id: 13,
+        typ: "wybor",
+        pytanie: "Który wybitny filozof odrodzenia napisał dzieło „Pochwała głupoty” i sprzeciwiał się wojnom?",
+        opcje: ["Erazm z Rotterdamu", "Marcin Luter", "Mikołaj Kopernik", "Ignacy Loyola"],
+        poprawna: 0,
+        wyjasnienie: "Erazm z Rotterdamu był myślicielem wierzącym, że człowiek z natury jest dobry, a zło bierze się z niewiedzy. W dziele wyśmiewał wady społeczeństwa."
+      },
+      {
+        id: 14,
+        typ: "prawda_falsz",
+        pytanie: "Fresk to technika malowania na suchym drewnie przy użyciu wosku pszczelego.",
+        poprawna: false,
+        wyjasnienie: "Fałsz! Fresk to malowidło wykonywane na świeżym, wilgotnym tynku na ścianach lub sufitach budowli (włoskie słowo „fresco” oznacza świeży)."
+      },
+      {
+        id: 15,
+        typ: "wybor",
+        pytanie: "Z czego słynął w malarstwie renesansowym genialny artysta Rafael Santi?",
+        opcje: [
+          "Z projektowania machin wojennych i okrętów",
+          "Z pięknych obrazów przedstawiających Matkę Boską z Dzieciątkiem (np. Madonna Sykstyńska)",
+          "Z wynalezienia druku czcionkowego",
+          "Z budowy wiszących mostów"
+        ],
+        poprawna: 1,
+        wyjasnienie: "Rafael Santi był malarzem i architektem słynącym z niezwykle harmonijnych i ciepłych przedstawień Madonny z Dzieciątkiem."
+      },
+      {
+        id: 16,
+        typ: "prawda_falsz",
+        pytanie: "Zaprojektowany przez Leonarda czołg miał być wprawiany w ruch korbami przez 8 członków załogi.",
+        poprawna: true,
+        wyjasnienie: "Prawda! Leonardo wyprzedził swoją epokę, projektując pancerny wóz z armatami napędzany siłą mięśni ośmiu ludzi."
+      },
+      {
+        id: 17,
+        typ: "wybor",
+        pytanie: "Co w architekturze oznacza określenie „kopuła”?",
+        opcje: [
+          "Półkoliste sklepienie przykrywające centralną część świątyni",
+          "Podziemny korytarz pod dziedzińcem",
+          "Trójkątny żagiel łaciński",
+          "Ozdobną ramę na obraz"
+        ],
+        poprawna: 0,
+        wyjasnienie: "Kopuła to półkoliste sklepienie. Słynna kopuła katedry we Florencji (Santa Maria del Fiore) liczy ponad 100 metrów wysokości."
+      },
+      {
+        id: 18,
+        typ: "prawda_falsz",
+        pytanie: "Mianem „człowieka renesansu” określa się osobę, która skupia się wyłącznie na jednej wąskiej dziedzinie nauki.",
+        poprawna: false,
+        wyjasnienie: "Fałsz! Człowiek renesansu to ktoś o wszechstronnej wiedzy, rozległych pasjach i wielu talentach w sztuce, nauce i technice (wzorem Leonarda da Vinci)."
+      },
+      {
+        id: 19,
+        typ: "wybor",
+        pytanie: "Czym charakteryzowała się „renesansowa radość życia”?",
+        opcje: [
+          "Surowym postem i unikaniem książek",
+          "Docenianiem ziemskiego życia, otaczaniem się pięknem, strojami z klejnotami i rezydencjami",
+          "Wyjazdami na wyprawy rycerskie do Ziemi Świętej",
+          "Ręcznym przepisywaniem ksiąg w odosobnieniu"
+        ],
+        poprawna: 1,
+        wyjasnienie: "Wpływ humanizmu sprawił, że ludzie zaczęli doceniać życie ziemskie, dbać o piękno otoczenia, architekturę, sztukę i wykwintne stroje."
+      },
+      {
+        id: 20,
+        typ: "prawda_falsz",
+        pytanie: "Dzięki zastosowaniu perspektywy malarze renesansu potrafili oddać trójwymiarową przestrzeń na płaskiej powierzchni.",
+        poprawna: true,
+        wyjasnienie: "Prawda! Zastosowanie perspektywy zbieżnej i prawidłowych proporcji ludzkiego ciała było jednym z najważniejszych przełomów sztuki odrodzenia."
+      }
+    ];
+
+    /* ==========================================================================
+       KONFIGURACJA PÓL PLANSZY (Ścieżka 21 kafelków: 0 = Start, 20 = Meta)
+       ========================================================================== */
+    const BOARD_TILES = [
+      { id: 0, title: "START: Florencja", type: "start", icon: "🏛️", desc: "Kolebka Renesansu" },
+      { id: 1, title: "Pracownia Mistrza", type: "wiedza", icon: "📖", qId: 1 },
+      { id: 2, title: "Mecenat Medyceuszy", type: "szansa", icon: "💰", effect: 1, desc: "Otrzymujesz wsparcie! +1 pole" },
+      { id: 3, title: "Drukarnia Gutenberga", type: "prawda_falsz", icon: "📜", qId: 4 },
+      { id: 4, title: "Pracownia Zecera", type: "wiedza", icon: "🔤", qId: 5 },
+      { id: 5, title: "Motto Humanizmu", type: "wiedza", icon: "✨", qId: 2 },
+      { id: 6, title: "Nietrwała technika fresku", type: "przeszkoda", icon: "⚠️", effect: -1, desc: "Farba pęka! Cofasz się o 1 pole" },
+      { id: 7, title: "Katedra we Florencji", type: "wiedza", icon: "⛪", qId: 17 },
+      { id: 8, title: "Tajemnica Mony Lisy", type: "prawda_falsz", icon: "🖼️", qId: 12 },
+      { id: 9, title: "Warsztat Machin Wojennych", type: "wiedza", icon: "⚙️", qId: 16 },
+      { id: 10, title: "Stypendium Księcia", type: "szansa", icon: "🎖️", effect: 2, desc: "Wspaniały projekt! Przeskakujesz o 2 pola do przodu!" },
+      { id: 11, title: "Półmetek: Mediolan", type: "wiedza", icon: "🎨", qId: 9 },
+      { id: 12, title: "Wizyta w Krakowie", type: "wiedza", icon: "🏰", qId: 10 },
+      { id: 13, title: "Błąd perspektywy", type: "przeszkoda", icon: "📐", effect: -1, desc: "Złe proporcje! Cofasz się o 1 pole" },
+      { id: 14, title: "Kaplica Sykstyńska", type: "wiedza", icon: "🖌️", qId: 11 },
+      { id: 15, title: "Pochwała Mądrości", type: "prawda_falsz", icon: "📚", qId: 13 },
+      { id: 16, title: "Piękno Madonny Santi", type: "wiedza", icon: "🕊️", qId: 15 },
+      { id: 17, title: "Architektura: Attyki i Arkady", type: "prawda_falsz", icon: "🏛️", qId: 7 },
+      { id: 18, title: "Mecenat Papieski", type: "szansa", icon: "⭐", effect: 1, desc: "Papież docenia Twoje freski! +1 pole" },
+      { id: 19, title: "Idea Człowieka Renesansu", type: "wiedza", icon: "💡", qId: 18 },
+      { id: 20, title: "META: Watykan", type: "meta", icon: "👑", desc: "Tytuł Mistrza Odrodzenia!" }
+    ];
+
+    /* Postacie renesansowe graczy z obsługą edycji imion i wektorowymi awatarami */
+    const PLAYERS_DATA = [
+      {
+        id: 0,
+        name: "Leonardo da Vinci",
+        customName: "Leonardo da Vinci",
+        avatarKey: "leonardo",
+        color: "#C89D42",
+        pos: 0,
+        score: 0
+      },
+      {
+        id: 1,
+        name: "Michał Anioł",
+        customName: "Michał Anioł",
+        avatarKey: "michelangelo",
+        color: "#1A365D",
+        pos: 0,
+        score: 0
+      }
+    ];
+
+    /* Stan Rozgrywki (In-Memory State) */
+    let gameState = {
+      currentPlayerIdx: 0,
+      isRolling: false,
+      awaitingQuestion: false,
+      gameFinished: false,
+      turnCount: 1
+    };
+
+    // Inicjalizacja kafelków planszy
+    function renderBoard() {
+      const track = document.getElementById('boardTrack');
+      track.innerHTML = '';
+
+      BOARD_TILES.forEach((tile, index) => {
+        const tileDiv = document.createElement('div');
+        tileDiv.id = `tile-${index}`;
+        tileDiv.className = `w-full p-3 rounded-2xl border-2 transition-all duration-300 relative flex items-center justify-between parchment-card`;
+        
+        let typeBadge = '';
+        if (tile.type === 'start') {
+          typeBadge = '<span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-amber-700 text-white">Start</span>';
+        } else if (tile.type === 'meta') {
+          typeBadge = '<span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-renaissance-terracotta text-white">Koniec</span>';
+        } else if (tile.type === 'szansa') {
+          typeBadge = '<span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-emerald-700 text-white">Mecenat</span>';
+        } else if (tile.type === 'przeszkoda') {
+          typeBadge = '<span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-rose-800 text-white">Przeszkoda</span>';
+        } else if (tile.type === 'prawda_falsz') {
+          typeBadge = '<span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-indigo-700 text-white">Prawda / Fałsz</span>';
+        } else {
+          typeBadge = '<span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-amber-900 text-amber-100">Pytanie</span>';
+        }
+
+        tileDiv.innerHTML = `
+          <div class="flex items-center space-x-3 z-10">
+            <div class="w-10 h-10 rounded-xl bg-amber-100/90 border border-amber-300 flex items-center justify-center text-xl shadow-sm">
+              ${tile.icon}
+            </div>
+            <div>
+              <div class="flex items-center space-x-1.5 mb-0.5">
+                <span class="text-[11px] font-bold text-amber-900/70">#${tile.id}</span>
+                ${typeBadge}
+              </div>
+              <h4 class="font-serif font-bold text-sm text-renaissance-umber leading-snug">${tile.title}</h4>
+              ${tile.desc ? `<p class="text-[11px] text-stone-600 italic">${tile.desc}</p>` : ''}
+            </div>
+          </div>
+          
+          <!-- Kontener na pionki na danym polu -->
+          <div id="pawns-container-${index}" class="flex items-center space-x-1 z-10 min-w-[50px] justify-end">
+          </div>
+        `;
+
+        track.appendChild(tileDiv);
+      });
+
+      updatePawnsOnBoard();
+    }
+
+    // Aktualizacja wizualna pozycji pionków (zawsze ostre, wektorowe grafiki SVG)
+    function updatePawnsOnBoard() {
+      // Wyczyść wszystkie kontenery pionków
+      BOARD_TILES.forEach((_, idx) => {
+        const c = document.getElementById(`pawns-container-${idx}`);
+        if (c) c.innerHTML = '';
+      });
+
+      // Wstaw wektorowe pionki graczy
+      PLAYERS_DATA.forEach((player, pIdx) => {
+        const container = document.getElementById(`pawns-container-${player.pos}`);
+        if (container) {
+          const pawnEl = document.createElement('div');
+          const isCurrent = gameState.currentPlayerIdx === pIdx;
+          pawnEl.className = `relative w-9 h-9 rounded-full border-2 shadow-md overflow-hidden transition-all duration-300 flex items-center justify-center ${isCurrent ? 'pawn-pulse ring-2 ring-amber-400 scale-110 z-20' : 'opacity-90 z-10'}`;
+          pawnEl.style.borderColor = player.color;
+          pawnEl.innerHTML = `
+            ${getAvatarSvg(player.avatarKey)}
+            <span class="absolute bottom-0 right-0 bg-renaissance-umber text-[8px] font-bold text-amber-200 px-1 rounded-tl shadow">G${pIdx + 1}</span>
+          `;
+          container.appendChild(pawnEl);
+        }
+      });
+
+      // Zaktualizuj dolne wskaźniki i miniatury
+      document.getElementById('p1AvatarMini').innerHTML = getAvatarSvg(PLAYERS_DATA[0].avatarKey);
+      document.getElementById('p2AvatarMini').innerHTML = getAvatarSvg(PLAYERS_DATA[1].avatarKey);
+      
+      document.getElementById('p1MiniName').innerText = `G1: ${PLAYERS_DATA[0].customName}`;
+      document.getElementById('p2MiniName').innerText = `G2: ${PLAYERS_DATA[1].customName}`;
+      
+      document.getElementById('p1Points').innerText = PLAYERS_DATA[0].score;
+      document.getElementById('p1TileNum').innerText = PLAYERS_DATA[0].pos;
+      document.getElementById('p2Points').innerText = PLAYERS_DATA[1].score;
+      document.getElementById('p2TileNum').innerText = PLAYERS_DATA[1].pos;
+
+      // Pasek tury
+      const curr = PLAYERS_DATA[gameState.currentPlayerIdx];
+      document.getElementById('currentTurnName').innerText = `Gracz ${curr.id + 1}: ${curr.customName}`;
+      document.getElementById('currentPawnThumb').innerHTML = getAvatarSvg(curr.avatarKey);
+
+      // Aktywne ramki w dolnym panelu (zoptymalizowane skalowanie dla smartfona)
+      const activeClass = 'flex-1 min-w-0 flex items-center space-x-1.5 p-1 rounded-lg bg-amber-800/90 border border-amber-300 shadow transition cursor-pointer active:scale-95 ring-1 ring-amber-400/50';
+      const inactiveClass = 'flex-1 min-w-0 flex items-center space-x-1.5 p-1 rounded-lg bg-amber-950/50 border border-transparent transition cursor-pointer hover:bg-amber-900/40 active:scale-95 opacity-80';
+
+      if (gameState.currentPlayerIdx === 0) {
+        document.getElementById('player1Status').className = activeClass;
+        document.getElementById('player2Status').className = inactiveClass;
+      } else {
+        document.getElementById('player2Status').className = activeClass;
+        document.getElementById('player1Status').className = inactiveClass;
+      }
+    }
+
+    // Płynne przewijanie do pionka
+    function scrollToCurrentPlayerPawn() {
+      const player = PLAYERS_DATA[gameState.currentPlayerIdx];
+      const targetTile = document.getElementById(`tile-${player.pos}`);
+      if (targetTile) {
+        targetTile.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+
+    // Rzut kością (1 do 4)
+    function rollDice() {
+      if (gameState.isRolling || gameState.awaitingQuestion || gameState.gameFinished) return;
+
+      gameState.isRolling = true;
+      const diceEl = document.getElementById('diceVisual');
+      const rollBtn = document.getElementById('btnRollDice');
+      
+      rollBtn.disabled = true;
+      rollBtn.classList.add('opacity-50', 'cursor-not-allowed');
+      diceEl.classList.add('rolling');
+      soundMgr.playRoll();
+
+      // Szybkie losowe migotanie liczb
+      let count = 0;
+      const interval = setInterval(() => {
+        diceEl.innerText = Math.floor(Math.random() * 4) + 1;
+        soundMgr.playRoll();
+        count++;
+        if (count > 6) {
+          clearInterval(interval);
+          const finalRoll = Math.floor(Math.random() * 4) + 1;
+          diceEl.innerText = finalRoll;
+          diceEl.classList.remove('rolling');
+          
+          setTimeout(() => {
+            moveActivePlayer(finalRoll);
+          }, 300);
+        }
+      }, 70);
+    }
+
+    // Przemieszczanie pionka krok po kroku
+    function moveActivePlayer(steps) {
+      const player = PLAYERS_DATA[gameState.currentPlayerIdx];
+      let newPos = player.pos + steps;
+      if (newPos >= BOARD_TILES.length - 1) {
+        newPos = BOARD_TILES.length - 1;
+      }
+
+      player.pos = newPos;
+      updatePawnsOnBoard();
+      scrollToCurrentPlayerPawn();
+
+      setTimeout(() => {
+        evaluateCurrentTile(newPos);
+      }, 500);
+    }
+
+    // Rozpatrzenie pola, na którym stanął gracz
+    function evaluateCurrentTile(tileIndex) {
+      const tile = BOARD_TILES[tileIndex];
+      const player = PLAYERS_DATA[gameState.currentPlayerIdx];
+
+      // Pole META - Zwycięstwo!
+      if (tile.type === 'meta') {
+        player.score += 50;
+        updatePawnsOnBoard();
+        showVictoryScreen();
+        return;
+      }
+
+      // Pole Szansy (Mecenat / ruch w przód)
+      if (tile.type === 'szansa') {
+        soundMgr.playSuccess();
+        player.score += 15;
+        showSpecialNotification("WSPARCIE MECENASA! 💰", `${tile.desc} Zdobywasz 15 punktów sławy!`, () => {
+          player.pos = Math.min(BOARD_TILES.length - 1, player.pos + tile.effect);
+          updatePawnsOnBoard();
+          scrollToCurrentPlayerPawn();
+          if (player.pos === BOARD_TILES.length - 1) {
+            showVictoryScreen();
+          } else {
+            promptHandoverToNextPlayer();
+          }
+        });
+        return;
+      }
+
+      // Pole Przeszkody (Cofnięcie)
+      if (tile.type === 'przeszkoda') {
+        soundMgr.playWrong();
+        showSpecialNotification("PRZESZKODA W PRACACH! ⚠️", `${tile.desc}`, () => {
+          player.pos = Math.max(0, player.pos + tile.effect);
+          updatePawnsOnBoard();
+          scrollToCurrentPlayerPawn();
+          promptHandoverToNextPlayer();
+        });
+        return;
+      }
+
+      // Pole Startowe
+      if (tile.type === 'start') {
+        promptHandoverToNextPlayer();
+        return;
+      }
+
+      // Standardowe pola z pytaniem (Wiedza lub Prawda/Fałsz)
+      let questionObj = null;
+      if (tile.qId) {
+        questionObj = QUESTIONS_DATABASE.find(q => q.id === tile.qId);
+      }
+      if (!questionObj) {
+        // Losowe pytanie z bazy
+        questionObj = QUESTIONS_DATABASE[Math.floor(Math.random() * QUESTIONS_DATABASE.length)];
+      }
+
+      showQuestionModal(questionObj, tile);
+    }
+
+    // Specjalne małe powiadomienie o szansie/przeszkodzie w modal
+    function showSpecialNotification(title, message, callback) {
+      const modal = document.getElementById('questionModal');
+      const catBadge = document.getElementById('modalCategoryBadge');
+      const tileInd = document.getElementById('modalTileIndicator');
+      const qText = document.getElementById('modalQuestionText');
+      const optContainer = document.getElementById('modalOptionsContainer');
+      const explBox = document.getElementById('modalExplanationBox');
+      
+      catBadge.className = 'px-2 py-0.5 text-[11px] font-bold uppercase rounded bg-renaissance-gold text-renaissance-umber';
+      catBadge.innerText = 'Wydarzenie';
+      tileInd.innerText = `Pole #${PLAYERS_DATA[gameState.currentPlayerIdx].pos}`;
+      qText.innerHTML = `<span class="text-renaissance-terracotta">${title}</span><br><span class="text-sm font-normal text-stone-700 block mt-2">${message}</span>`;
+      
+      optContainer.innerHTML = '';
+      explBox.classList.add('hidden');
+
+      const okBtn = document.createElement('button');
+      okBtn.className = 'w-full py-2.5 bg-renaissance-gold text-renaissance-umber font-serif font-bold text-xs uppercase rounded-xl shadow';
+      okBtn.innerText = 'Dalej';
+      okBtn.onclick = () => {
+        modal.classList.add('hidden');
+        callback();
+      };
+      optContainer.appendChild(okBtn);
+      modal.classList.remove('hidden');
+    }
+
+    // Wyświetlenie modala z pytaniem
+    function showQuestionModal(q, tile) {
+      gameState.awaitingQuestion = true;
+      const modal = document.getElementById('questionModal');
+      const catBadge = document.getElementById('modalCategoryBadge');
+      const tileInd = document.getElementById('modalTileIndicator');
+      const qText = document.getElementById('modalQuestionText');
+      const optContainer = document.getElementById('modalOptionsContainer');
+      const explBox = document.getElementById('modalExplanationBox');
+
+      catBadge.className = q.typ === 'prawda_falsz' ? 
+        'px-2 py-0.5 text-[11px] font-bold uppercase rounded bg-indigo-900 text-indigo-100' :
+        'px-2 py-0.5 text-[11px] font-bold uppercase rounded bg-renaissance-umber text-amber-100';
+      catBadge.innerText = q.typ === 'prawda_falsz' ? 'Prawda / Fałsz' : 'Wiedza z podręcznika';
+      tileInd.innerText = `Pole #${tile.id}`;
+      qText.innerText = q.pytanie;
+
+      optContainer.innerHTML = '';
+      explBox.classList.add('hidden');
+
+      if (q.typ === 'prawda_falsz') {
+        // Dwa przyciski: Prawda oraz Fałsz
+        [
+          { label: "PRAWDA", val: true, bg: "hover:border-emerald-600" },
+          { label: "FAŁSZ", val: false, bg: "hover:border-rose-600" }
+        ].forEach(btnData => {
+          const btn = document.createElement('button');
+          btn.className = `w-full p-3 rounded-xl border-2 border-amber-300/80 bg-white/80 font-bold text-sm text-renaissance-umber text-center transition flex items-center justify-center space-x-2 shadow-sm ${btnData.bg} active:scale-98`;
+          btn.innerHTML = `<span>${btnData.val ? '✅' : '❌'}</span><span>${btnData.label}</span>`;
+          btn.onclick = () => handleAnswerSelected(btnData.val === q.poprawna, q);
+          optContainer.appendChild(btn);
+        });
+      } else {
+        // Cztery opcje wyboru A / B / C / D
+        const letters = ['A', 'B', 'C', 'D'];
+        q.opcje.forEach((opt, idx) => {
+          const btn = document.createElement('button');
+          btn.className = `w-full p-2.5 rounded-xl border-2 border-amber-300/80 bg-white/80 font-medium text-xs text-stone-800 text-left transition flex items-center space-x-2.5 hover:border-renaissance-gold shadow-sm active:scale-98`;
+          btn.innerHTML = `
+            <span class="w-6 h-6 rounded-full bg-amber-100 border border-amber-400 font-bold text-xs flex items-center justify-center text-renaissance-umber flex-shrink-0">${letters[idx]}</span>
+            <span class="leading-tight">${opt}</span>
+          `;
+          btn.onclick = () => handleAnswerSelected(idx === q.poprawna, q);
+          optContainer.appendChild(btn);
+        });
+      }
+
+      modal.classList.remove('hidden');
+    }
+
+    // Weryfikacja odpowiedzi i informacja dydaktyczna
+    function handleAnswerSelected(isCorrect, q) {
+      const explBox = document.getElementById('modalExplanationBox');
+      const resTitle = document.getElementById('modalResultTitle');
+      const resText = document.getElementById('modalExplanationText');
+      const optContainer = document.getElementById('modalOptionsContainer');
+      const player = PLAYERS_DATA[gameState.currentPlayerIdx];
+
+      // Wyłączenie klikania w opcje
+      Array.from(optContainer.children).forEach(btn => {
+        btn.disabled = true;
+        btn.classList.add('opacity-60', 'pointer-events-none');
+      });
+
+      if (isCorrect) {
+        soundMgr.playSuccess();
+        player.score += 20;
+        resTitle.innerText = "Wyśmienicie! Dobra odpowiedź! (+20 pkt)";
+        resTitle.className = "font-bold text-sm mb-1 text-emerald-800 flex items-center";
+      } else {
+        soundMgr.playWrong();
+        // Kara: brak punktów i cofnięcie o 1 pole jeśli gracz jest dalej niż na starcie
+        if (player.pos > 0) {
+          player.pos -= 1;
+        }
+        resTitle.innerText = "Błędna odpowiedź! (Cofasz się o 1 pole)";
+        resTitle.className = "font-bold text-sm mb-1 text-rose-800 flex items-center";
+      }
+
+      resText.innerText = q.wyjasnienie;
+      explBox.classList.remove('hidden');
+
+      document.getElementById('btnContinueAfterAnswer').onclick = () => {
+        document.getElementById('questionModal').classList.add('hidden');
+        updatePawnsOnBoard();
+        gameState.awaitingQuestion = false;
+        promptHandoverToNextPlayer();
+      };
+    }
+
+    // Zmiana tury i wyświetlenie modal "Podaj telefon Graczowi 2"
+    function promptHandoverToNextPlayer() {
+      // Zmień gracza: 0 -> 1 lub 1 -> 0
+      gameState.currentPlayerIdx = gameState.currentPlayerIdx === 0 ? 1 : 0;
+      const nextPlayer = PLAYERS_DATA[gameState.currentPlayerIdx];
+
+      const handoverModal = document.getElementById('handoverModal');
+      document.getElementById('handoverAvatar').innerHTML = getAvatarSvg(nextPlayer.avatarKey);
+      document.getElementById('handoverPlayerName').innerText = `Gracz ${nextPlayer.id + 1}: ${nextPlayer.customName}`;
+      
+      handoverModal.classList.remove('hidden');
+
+      document.getElementById('btnHandoverReady').onclick = () => {
+        handoverModal.classList.add('hidden');
+        gameState.isRolling = false;
+        
+        // Odblokuj przycisk kości
+        const rollBtn = document.getElementById('btnRollDice');
+        rollBtn.disabled = false;
+        rollBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        
+        updatePawnsOnBoard();
+        scrollToCurrentPlayerPawn();
+      };
+    }
+
+    // Ekran końca gry
+    function showVictoryScreen() {
+      gameState.gameFinished = true;
+      soundMgr.playFanfare();
+
+      const modal = document.getElementById('victoryModal');
+      const p1 = PLAYERS_DATA[0];
+      const p2 = PLAYERS_DATA[1];
+
+      let winner = p1.score >= p2.score ? p1 : p2;
+      if (p1.score === p2.score) {
+        winner = { customName: "REMIS OBOJGA ARTYSTÓW!" };
+      }
+
+      document.getElementById('victoryWinnerName').innerText = winner.customName;
+      document.getElementById('victoryP1Score').innerText = `${p1.customName}: ${p1.score} punktów (pole ${p1.pos})`;
+      document.getElementById('victoryP2Score').innerText = `${p2.customName}: ${p2.score} punktów (pole ${p2.pos})`;
+
+      modal.classList.remove('hidden');
+
+      document.getElementById('btnPlayAgain').onclick = () => {
+        modal.classList.add('hidden');
+        resetGame();
+      };
+    }
+
+    /* ==========================================================================
+       MODUŁ EDYCJI IMION I POSTACI GRACZY
+       ========================================================================== */
+    let tempSelectedAvatars = [PLAYERS_DATA[0].avatarKey, PLAYERS_DATA[1].avatarKey];
+
+    function openPlayersModal() {
+      const modal = document.getElementById('playersModal');
+      document.getElementById('inputP1Name').value = PLAYERS_DATA[0].customName;
+      document.getElementById('inputP2Name').value = PLAYERS_DATA[1].customName;
+      tempSelectedAvatars = [PLAYERS_DATA[0].avatarKey, PLAYERS_DATA[1].avatarKey];
+
+      renderAvatarPickers();
+      modal.classList.remove('hidden');
+    }
+
+    function closePlayersModal() {
+      document.getElementById('playersModal').classList.add('hidden');
+    }
+
+    function renderAvatarPickers() {
+      const keys = Object.keys(RENAISSANCE_AVATARS);
+      
+      ['p1', 'p2'].forEach((pKey, pIdx) => {
+        const container = document.getElementById(`${pKey}AvatarPickers`);
+        const preview = document.getElementById(`preview${pKey.toUpperCase()}Avatar`);
+        container.innerHTML = '';
+        
+        preview.innerHTML = getAvatarSvg(tempSelectedAvatars[pIdx]);
+
+        keys.forEach(key => {
+          const char = RENAISSANCE_AVATARS[key];
+          const isSelected = tempSelectedAvatars[pIdx] === key;
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = `p-1 rounded-lg border-2 transition-all flex flex-col items-center justify-center ${isSelected ? 'border-amber-600 bg-amber-200/90 ring-2 ring-amber-400 scale-105' : 'border-stone-300 bg-white/70 hover:border-amber-400'}`;
+          btn.innerHTML = `
+            <div class="w-8 h-8 rounded-full overflow-hidden mb-0.5 shadow-sm">${char.svg}</div>
+            <span class="text-[9px] font-bold text-stone-700 truncate w-full text-center">${char.name.split(' ')[0]}</span>
+          `;
+          btn.onclick = () => {
+            tempSelectedAvatars[pIdx] = key;
+            renderAvatarPickers();
+          };
+          container.appendChild(btn);
+        });
+      });
+    }
+
+    function savePlayersData() {
+      const p1Input = document.getElementById('inputP1Name').value.trim();
+      const p2Input = document.getElementById('inputP2Name').value.trim();
+
+      PLAYERS_DATA[0].customName = p1Input || "Gracz 1";
+      PLAYERS_DATA[1].customName = p2Input || "Gracz 2";
+
+      PLAYERS_DATA[0].avatarKey = tempSelectedAvatars[0];
+      PLAYERS_DATA[1].avatarKey = tempSelectedAvatars[1];
+      
+      PLAYERS_DATA[0].color = RENAISSANCE_AVATARS[tempSelectedAvatars[0]].themeColor;
+      PLAYERS_DATA[1].color = RENAISSANCE_AVATARS[tempSelectedAvatars[1]].themeColor;
+
+      updatePawnsOnBoard();
+      closePlayersModal();
+    }
+
+    // Reset gry do nowej rozgrywki w ławce
+    function resetGame() {
+      PLAYERS_DATA[0].pos = 0;
+      PLAYERS_DATA[0].score = 0;
+      PLAYERS_DATA[1].pos = 0;
+      PLAYERS_DATA[1].score = 0;
+      gameState.currentPlayerIdx = 0;
+      gameState.isRolling = false;
+      gameState.awaitingQuestion = false;
+      gameState.gameFinished = false;
+
+      const rollBtn = document.getElementById('btnRollDice');
+      rollBtn.disabled = false;
+      rollBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+
+      renderBoard();
+      scrollToCurrentPlayerPawn();
+    }
+
+    // Podpięcie przycisków pomocniczych i audio
+    document.addEventListener('DOMContentLoaded', () => {
+      renderBoard();
+
+      // Przycisk rzutu kością
+      document.getElementById('btnRollDice').addEventListener('click', () => {
+        rollDice();
+      });
+
+      // Dźwięk toggle
+      const btnSound = document.getElementById('btnSoundToggle');
+      btnSound.addEventListener('click', () => {
+        soundMgr.enabled = !soundMgr.enabled;
+        btnSound.innerText = soundMgr.enabled ? '🔊' : '🔇';
+      });
+
+      // Modale pomocy
+      const helpModal = document.getElementById('helpModal');
+      document.getElementById('btnHelp').addEventListener('click', () => {
+        helpModal.classList.remove('hidden');
+      });
+      document.getElementById('btnCloseHelp').addEventListener('click', () => {
+        helpModal.classList.add('hidden');
+      });
+      document.getElementById('btnCloseHelpBottom').addEventListener('click', () => {
+        helpModal.classList.add('hidden');
+      });
+
+      // Modal edycji imion i postaci graczy
+      document.getElementById('btnEditPlayers').addEventListener('click', openPlayersModal);
+      document.getElementById('player1Status').addEventListener('click', openPlayersModal);
+      document.getElementById('player2Status').addEventListener('click', openPlayersModal);
+      document.getElementById('btnClosePlayers').addEventListener('click', closePlayersModal);
+      document.getElementById('btnSavePlayers').addEventListener('click', savePlayersData);
+    });
+  </script>
+</body>
+</html>
