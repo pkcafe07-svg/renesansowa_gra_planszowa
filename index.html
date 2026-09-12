@@ -94,9 +94,22 @@
     html {
       scroll-behavior: smooth;
     }
+
+    /* Horyzontalny dok przewijany gestem palca (Swipe) z ukrytym suwakiem */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .dock-scroll-container {
+      scroll-snap-type: x proximity;
+      -webkit-overflow-scrolling: touch;
+    }
   </style>
 </head>
-<body class="min-h-screen text-renaissance-ink flex flex-col justify-between items-center pb-16 sm:pb-20">
+<body class="min-h-screen text-renaissance-ink flex flex-col justify-between items-center pb-24 sm:pb-28">
 
   <!-- Górny pasek nagłówka z informacją o turze i dźwięku -->
   <header class="w-full max-w-md sticky top-0 z-30 px-3 py-2.5 bg-renaissance-umber/95 text-amber-50 backdrop-blur-md shadow-md border-b-2 border-renaissance-gold flex items-center justify-between">
@@ -148,35 +161,46 @@
     </div>
   </main>
 
-  <!-- Dolny dok: Kość, statystyki i przycisk rzutu (Kompaktowy dla pionowego ekranu smartfona) -->
-  <footer class="fixed bottom-0 left-0 right-0 z-20 flex justify-center px-2 py-1.5 bg-renaissance-umber/95 backdrop-blur-md border-t border-renaissance-gold shadow-lg">
-    <div class="w-full max-w-md flex items-center justify-between gap-1.5">
+  <!-- Dolny dok: Pełnowymiarowy, przewijany horyzontalnie gestem (Swipe w lewo/prawo) -->
+  <footer class="fixed bottom-0 left-0 right-0 z-20 flex flex-col items-center bg-renaissance-umber/95 backdrop-blur-md border-t-2 border-renaissance-gold shadow-2xl">
+    
+    <!-- Dyskretny pasek informujący o możliwości przesuwania w poziomie -->
+    <div class="w-full max-w-md flex items-center justify-between px-3 pt-1 text-[9px] font-semibold text-amber-200/70 select-none">
+      <span class="flex items-center space-x-0.5"><span>👈</span><span>przesuń</span></span>
+      <span class="text-[8px] uppercase tracking-wider bg-amber-900/90 px-2 py-0.5 rounded-full border border-amber-500/40 text-amber-200">
+        Przesuń belkę palcem w bok ↔
+      </span>
+      <span class="flex items-center space-x-0.5"><span>przesuń</span><span>👉</span></span>
+    </div>
+
+    <!-- Horyzontalny kontener przewijany dotykiem -->
+    <div id="bottomDockScroll" class="w-full max-w-md overflow-x-auto flex items-center space-x-2.5 px-3 py-2 no-scrollbar dock-scroll-container">
       
-      <!-- Mini panel Gracza 1 -->
-      <div id="player1Status" class="flex-1 min-w-0 flex items-center space-x-1.5 p-1 rounded-lg bg-amber-900/60 border border-transparent transition cursor-pointer hover:bg-amber-800/80 active:scale-95" title="Kliknij, aby zmienić imię lub postać">
-        <div id="p1AvatarMini" class="w-6 h-6 sm:w-7 sm:h-7 rounded-full border border-amber-300 overflow-hidden flex-shrink-0 flex items-center justify-center shadow"></div>
+      <!-- Panel Gracza 1 (nieściskany, pełnowymiarowy) -->
+      <div id="player1Status" class="flex-shrink-0 min-w-[145px] flex items-center space-x-2.5 p-2 rounded-xl bg-amber-900/70 border border-amber-400/40 transition-all cursor-pointer hover:bg-amber-800/80 active:scale-95 snap-center" title="Kliknij, aby zmienić imię lub postać">
+        <div id="p1AvatarMini" class="w-8 h-8 rounded-full border-2 border-amber-300 overflow-hidden flex-shrink-0 flex items-center justify-center shadow"></div>
         <div class="truncate">
-          <p id="p1MiniName" class="text-[9px] sm:text-[10px] text-amber-300 font-bold truncate leading-tight">G1: Leonardo</p>
-          <p class="text-[10px] text-white font-serif leading-tight"><span id="p1Points">0</span> pkt <span class="text-amber-400/80 text-[9px]">• p.<span id="p1TileNum">0</span></span></p>
+          <p id="p1MiniName" class="text-xs text-amber-300 font-bold truncate leading-tight">G1: Leonardo</p>
+          <p class="text-xs text-white font-serif leading-tight mt-0.5"><span id="p1Points">0</span> pkt <span class="text-amber-400/80 text-[10px]">• pole <span id="p1TileNum">0</span></span></p>
         </div>
       </div>
 
-      <!-- Centralna Kość i przycisk rzutu -->
-      <div class="flex items-center space-x-1 sm:space-x-1.5 flex-shrink-0">
-        <div id="diceVisual" class="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-50 to-amber-200 border border-renaissance-gold shadow flex items-center justify-center font-serif text-lg font-black text-renaissance-umber dice-cube">
+      <!-- Centralna Kość i przycisk rzutu (Wygodny, stabilny moduł rzutu) -->
+      <div id="centerRollStatus" class="flex-shrink-0 min-w-[170px] flex items-center justify-center space-x-2.5 p-1.5 px-3 rounded-xl bg-gradient-to-r from-amber-950/80 to-amber-900/90 border-2 border-renaissance-gold shadow-md snap-center">
+        <div id="diceVisual" class="w-9 h-9 rounded-lg bg-gradient-to-br from-amber-50 to-amber-200 border-2 border-renaissance-gold shadow flex items-center justify-center font-serif text-xl font-black text-renaissance-umber dice-cube">
           1
         </div>
-        <button id="btnRollDice" class="px-2.5 py-1.5 bg-gradient-to-r from-renaissance-gold to-amber-500 hover:from-amber-400 hover:to-renaissance-gold text-renaissance-umber font-serif font-black text-[11px] sm:text-xs rounded-lg shadow active:scale-95 transition border border-amber-200 whitespace-nowrap">
+        <button id="btnRollDice" class="px-3.5 py-2 bg-gradient-to-r from-renaissance-gold to-amber-500 hover:from-amber-400 hover:to-renaissance-gold text-renaissance-umber font-serif font-black text-xs rounded-lg shadow-md active:scale-95 transition border border-amber-200 whitespace-nowrap">
           RZUĆ (1-4)
         </button>
       </div>
 
-      <!-- Mini panel Gracza 2 -->
-      <div id="player2Status" class="flex-1 min-w-0 flex items-center space-x-1.5 p-1 rounded-lg bg-amber-900/60 border border-transparent transition cursor-pointer hover:bg-amber-800/80 active:scale-95" title="Kliknij, aby zmienić imię lub postać">
-        <div id="p2AvatarMini" class="w-6 h-6 sm:w-7 sm:h-7 rounded-full border border-amber-300 overflow-hidden flex-shrink-0 flex items-center justify-center shadow"></div>
+      <!-- Panel Gracza 2 (nieściskany, pełnowymiarowy) -->
+      <div id="player2Status" class="flex-shrink-0 min-w-[145px] flex items-center space-x-2.5 p-2 rounded-xl bg-amber-900/70 border border-amber-400/40 transition-all cursor-pointer hover:bg-amber-800/80 active:scale-95 snap-center" title="Kliknij, aby zmienić imię lub postać">
+        <div id="p2AvatarMini" class="w-8 h-8 rounded-full border-2 border-amber-300 overflow-hidden flex-shrink-0 flex items-center justify-center shadow"></div>
         <div class="truncate">
-          <p id="p2MiniName" class="text-[9px] sm:text-[10px] text-amber-300 font-bold truncate leading-tight">G2: Michał Anioł</p>
-          <p class="text-[10px] text-white font-serif leading-tight"><span id="p2Points">0</span> pkt <span class="text-amber-400/80 text-[9px]">• p.<span id="p2TileNum">0</span></span></p>
+          <p id="p2MiniName" class="text-xs text-amber-300 font-bold truncate leading-tight">G2: Michał Anioł</p>
+          <p class="text-xs text-white font-serif leading-tight mt-0.5"><span id="p2Points">0</span> pkt <span class="text-amber-400/80 text-[10px]">• pole <span id="p2TileNum">0</span></span></p>
         </div>
       </div>
 
@@ -876,9 +900,9 @@
       document.getElementById('currentTurnName').innerText = `Gracz ${curr.id + 1}: ${curr.customName}`;
       document.getElementById('currentPawnThumb').innerHTML = getAvatarSvg(curr.avatarKey);
 
-      // Aktywne ramki w dolnym panelu (zoptymalizowane skalowanie dla smartfona)
-      const activeClass = 'flex-1 min-w-0 flex items-center space-x-1.5 p-1 rounded-lg bg-amber-800/90 border border-amber-300 shadow transition cursor-pointer active:scale-95 ring-1 ring-amber-400/50';
-      const inactiveClass = 'flex-1 min-w-0 flex items-center space-x-1.5 p-1 rounded-lg bg-amber-950/50 border border-transparent transition cursor-pointer hover:bg-amber-900/40 active:scale-95 opacity-80';
+      // Aktywne ramki w dolnym doku przewijanym horyzontalnie gestem
+      const activeClass = 'flex-shrink-0 min-w-[145px] flex items-center space-x-2.5 p-2 rounded-xl bg-amber-800/95 border-2 border-amber-300 shadow-lg transition-all cursor-pointer active:scale-95 ring-2 ring-amber-400/70 snap-center';
+      const inactiveClass = 'flex-shrink-0 min-w-[145px] flex items-center space-x-2.5 p-2 rounded-xl bg-amber-950/70 border border-amber-600/40 transition-all cursor-pointer hover:bg-amber-900/50 active:scale-95 opacity-80 snap-center';
 
       if (gameState.currentPlayerIdx === 0) {
         document.getElementById('player1Status').className = activeClass;
@@ -886,6 +910,24 @@
       } else {
         document.getElementById('player2Status').className = activeClass;
         document.getElementById('player1Status').className = inactiveClass;
+      }
+
+      scrollDockToActivePlayer();
+    }
+
+    // Automatyczne i płynne centrowanie dolnej belki na aktywnej karcie
+    function scrollDockToActivePlayer() {
+      const dock = document.getElementById('bottomDockScroll');
+      if (!dock) return;
+      const targetId = gameState.currentPlayerIdx === 0 ? 'player1Status' : 'player2Status';
+      const targetEl = document.getElementById(targetId);
+      if (targetEl) {
+        const dockCenter = dock.clientWidth / 2;
+        const targetCenter = targetEl.offsetLeft + targetEl.clientWidth / 2;
+        dock.scrollTo({
+          left: targetCenter - dockCenter,
+          behavior: 'smooth'
+        });
       }
     }
 
@@ -1296,6 +1338,17 @@
       document.getElementById('player2Status').addEventListener('click', openPlayersModal);
       document.getElementById('btnClosePlayers').addEventListener('click', closePlayersModal);
       document.getElementById('btnSavePlayers').addEventListener('click', savePlayersData);
+
+      // Obsługa horyzontalnego przesuwania kółkiem myszy w podglądzie komputerowym
+      const bottomDock = document.getElementById('bottomDockScroll');
+      if (bottomDock) {
+        bottomDock.addEventListener('wheel', (e) => {
+          if (e.deltaY !== 0) {
+            bottomDock.scrollLeft += e.deltaY;
+            e.preventDefault();
+          }
+        }, { passive: false });
+      }
     });
   </script>
 </body>
